@@ -28,9 +28,6 @@ class TodoListViewController: UITableViewController{
         
         cell.textLabel?.text = item.title
         
-        //Ternary operator ==>
-        // value = condition ? valueIfTrue : valueIfFalse
-        
         cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
@@ -39,8 +36,6 @@ class TodoListViewController: UITableViewController{
     //MARK: - TableView Delegate Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        context.delete(itemArray[indexPath.row])
-//        itemArray.remove(at: indexPath.row)
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
@@ -52,7 +47,6 @@ class TodoListViewController: UITableViewController{
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            //what will happen once the user clicks the Add Item button on our UIAlert
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
             newItem.done = false
@@ -79,7 +73,7 @@ class TodoListViewController: UITableViewController{
         self.tableView.reloadData()
     }
     
-    func loadItems(request: NSFetchRequest<Item> = Item.fetchRequest()) {
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
         do {
             itemArray = try context.fetch(request)
         } catch {
@@ -95,7 +89,7 @@ extension TodoListViewController: UISearchBarDelegate{
         print(searchBar.text!)
         request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        loadItems(request: request)
+        loadItems(with: request)
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text?.count == 0{
