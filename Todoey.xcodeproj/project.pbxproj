@@ -60,8 +60,8 @@
 		886166E821EEB38D002EF209 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				88079D9121F1AEEC003870D0 /* Item.swift */,
 				88079D9321F1AF1B003870D0 /* Category.swift */,
+				88079D9121F1AEEC003870D0 /* Item.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
