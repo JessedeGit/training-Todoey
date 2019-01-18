@@ -62,6 +62,13 @@ class CategoryViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("Line was seleceted!")
+        performSegue(withIdentifier: "goToItems", sender: self)
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destiVC = segue.destination as! TodoListViewController
+        if let indexPath = tableView.indexPathForSelectedRow {
+            destiVC.selectedCategory = categoryArray[indexPath.row]
+        }
     }
     
     func loadData(with request: NSFetchRequest<Kategory> = Kategory.fetchRequest()){
