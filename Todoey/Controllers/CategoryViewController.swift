@@ -7,20 +7,22 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var addButton: UIBarButtonItem!
     
-    var categoryArray = [Kategory]()
+    let realm = try! Realm()
+    
+    var categoryArray = [Category]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        loadData()
+//        loadData()
     }
     // MARK: - Table view data source
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -38,10 +40,10 @@ class CategoryViewController: UITableViewController {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
-            let newItem = Kategory(context: self.context)
+            let newItem = Category()
             newItem.name = textField.text!
             self.categoryArray.append(newItem)
-            self.saveItems()
+            self.save(category: newItem)
         }
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new category"
@@ -51,9 +53,11 @@ class CategoryViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         }
     
-    func saveItems() {
+    func save(category: Category) {
         do {
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print("Error saving context \(error)")
         }
@@ -71,27 +75,27 @@ class CategoryViewController: UITableViewController {
         }
     }
     
-    func loadData(with request: NSFetchRequest<Kategory> = Kategory.fetchRequest()){
-        let request: NSFetchRequest<Kategory> = Kategory.fetchRequest()
-        do {
-            categoryArray = try context.fetch(request)
-        } catch {
-            print("Error fetching data from context \(error)")
-        }
-        tableView.reloadData()
-    }
+//    func loadData(with request: NSFetchRequest<Category> = Category.fetchRequest()){
+//        let request: NSFetchRequest<Category> = Category.fetchRequest()
+//        do {
+//            categoryArray = try context.fetch(request)
+//        } catch {
+//            print("Error fetching data from context \(error)")
+//        }
+//        tableView.reloadData()
+//    }
 }
 
-extension CategoryViewController: UISearchBarDelegate{
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let request: NSFetchRequest<Kategory> = Kategory.fetchRequest()
-        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
-        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        loadData(with: request)
-    }
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchBar.text?.count == 0{
-            loadData()
-        }
-    }
-}
+//extension CategoryViewController: UISearchBarDelegate{
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        let request: NSFetchRequest<Category> = Category.fetchRequest()
+//        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
+//        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+//        loadData(with: request)
+//    }
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if searchBar.text?.count == 0{
+//            loadData()
+//        }
+//    }
+//}

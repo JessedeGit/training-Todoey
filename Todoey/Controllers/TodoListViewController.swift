@@ -1,21 +1,22 @@
 import UIKit
-import CoreData
+import RealmSwift
 
 class TodoListViewController: UITableViewController{
     
     @IBOutlet weak var searchBar: UISearchBar!
-    var selectedCategory: Kategory?{
+    var selectedCategory: Category?{
         didSet{
-            loadItems()
+//            loadItems()
         }
     }
     var itemArray = [Item]()
+    let realm = try! Realm()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        searchBar.delegate = self
+//        searchBar.delegate = self
     }
     
     //MARK: - Tableview Datasource Methods
@@ -41,7 +42,7 @@ class TodoListViewController: UITableViewController{
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        saveItems()
+//        save()
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -51,13 +52,13 @@ class TodoListViewController: UITableViewController{
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            let newItem = Item(context: self.context)
+            let newItem = Item()
             newItem.title = textField.text!
             newItem.done = false
-            newItem.parent = self.selectedCategory
+//            newItem.parent = self.selectedCategory
 
             self.itemArray.append(newItem)
-            self.saveItems()
+            self.save(item: newItem)
         }
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new item"
@@ -69,49 +70,50 @@ class TodoListViewController: UITableViewController{
     
     //MARK - Model Manupulation Methods
     
-    func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print("Error saving context \(error)")
-        }
-        
+    func save(item: Item) {
+//        do {
+//            try realm.write {
+//                realm.add(item)
+//        } catch {
+//            print("Error saving context \(error)")
+//        }
+//
         self.tableView.reloadData()
     }
     
-    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-        
-        let categoryPredicate =  NSPredicate(format: "parent.name MATCHES %@", selectedCategory!.name!)
-        request.predicate = categoryPredicate
-
-        if let searchPredicate = predicate {
-            request.predicate  = NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate, categoryPredicate] )
-        }
-
-        do {
-            itemArray = try context.fetch(request)
-        } catch {
-            print("Error fetching data from context \(error)")
-        }
-        tableView.reloadData()
-    }
+//    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+//        let request: NSFetchRequest<Item> = Item.fetchRequest()
+//        
+//        let categoryPredicate =  NSPredicate(format: "parent.name MATCHES %@", selectedCategory!.name!)
+//        request.predicate = categoryPredicate
+//
+//        if let searchPredicate = predicate {
+//            request.predicate  = NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate, categoryPredicate] )
+//        }
+//
+//        do {
+//            itemArray = try context.fetch(request)
+//        } catch {
+//            print("Error fetching data from context \(error)")
+//        }
+//        tableView.reloadData()
+//    }
 }
 
-extension TodoListViewController: UISearchBarDelegate{
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
-
-        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        loadItems(with: request, predicate: predicate)
-    }
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchBar.text?.count == 0{
-            loadItems()
-        }
-    }
-}
-
+//extension TodoListViewController: UISearchBarDelegate{
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        let request: NSFetchRequest<Item> = Item.fetchRequest()
+//
+//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+//
+//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+//
+//        loadItems(with: request, predicate: predicate)
+//    }
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if searchBar.text?.count == 0{
+//            loadItems()
+//        }
+//    }
+//}
+//
