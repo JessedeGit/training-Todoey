@@ -15,7 +15,6 @@ class TodoListViewController: UITableViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-//        searchBar.delegate = self
     }
     
     //MARK: - Tableview Datasource Methods
@@ -44,8 +43,17 @@ class TodoListViewController: UITableViewController{
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 //        toDoItems[indexPath.row].done = !toDoItems[indexPath.row].done
-////        save()
-        tableView.deselectRow(at: indexPath, animated: true)
+        
+        if let item = toDoItems?[indexPath.row]{
+            do{
+                try realm.write {
+                    item.done = !item.done
+                }
+            }catch{
+                print("Error when modifying and save item!\(error)")
+            }
+        }
+        tableView.reloadData()
     }
     
     //MARK: - Add New Items
@@ -79,7 +87,6 @@ class TodoListViewController: UITableViewController{
     
     //MARK - Model Manupulation Methods
 
-    
     func loadItems() {
         toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
