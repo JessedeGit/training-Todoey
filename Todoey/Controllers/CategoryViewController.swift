@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import SwipeCellKit
 
 class CategoryViewController: UITableViewController {
     
@@ -21,6 +22,7 @@ class CategoryViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.rowHeight = 80.0
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         loadData()
     }
@@ -30,8 +32,9 @@ class CategoryViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! SwipeTableViewCell
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categries added yet!"
+        cell.delegate = self as! SwipeTableViewCellDelegate
         return cell
     }
     
@@ -79,16 +82,35 @@ class CategoryViewController: UITableViewController {
     }
 }
 
-//extension CategoryViewController: UISearchBarDelegate{
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        let request: NSFetchRequest<Category> = Category.fetchRequest()
-//        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
-//        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-//        loadData(with: request)
-//    }
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if searchBar.text?.count == 0{
-//            loadData()
-//        }
-//    }
-//}
+extension CategoryViewController: SwipeTableViewCellDelegate{
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        guard orientation == .right else { return nil }
+        
+        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+            // handle action by updating model with deletion
+            if let category = self.categories?[indexPath.row]{
+            do {
+                    try self.realm.write {
+                         self.realm.delete(category)
+                    }
+                } catch {
+                    print("Error saving context \(error)")
+                }
+                
+            }
+//            tableView.reloadData()
+        }
+        
+        
+        // customize the action appearance
+        deleteAction.image = UIImage(named: "delete-icon")
+        
+        return [deleteAction]
+    }
+    func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
+        var options = SwipeOptions()
+        options.expansionStyle = .destructive
+//        options.transitionStyle = .border
+        return options
+    }
+}
