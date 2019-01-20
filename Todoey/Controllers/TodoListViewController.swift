@@ -1,7 +1,7 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController{
+class TodoListViewController: SwipeTableViewController{
     
     @IBOutlet weak var searchBar: UISearchBar!
     var selectedCategory: Category?{
@@ -25,9 +25,8 @@ class TodoListViewController: UITableViewController{
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+
         if let item = toDoItems?[indexPath.row] {
         
             cell.textLabel?.text = item.title
@@ -36,7 +35,6 @@ class TodoListViewController: UITableViewController{
         }else{
             cell.textLabel?.text = "No Items Added yet!"
         }
-        
         return cell
     }
     
@@ -91,6 +89,17 @@ class TodoListViewController: UITableViewController{
     func loadItems() {
         toDoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
+    }
+    override func updateModel(at indexPath: IndexPath) {
+        if let item = self.toDoItems?[indexPath.row]{
+            do {
+                try self.realm.write {
+                    self.realm.delete(item)
+                }
+            }catch {
+                print("Error saving context \(error)")
+            }
+        }
     }
 }
 
