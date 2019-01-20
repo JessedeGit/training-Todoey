@@ -5,6 +5,7 @@ import ChameleonFramework
 class TodoListViewController: SwipeTableViewController{
     
     @IBOutlet weak var searchBar: UISearchBar!
+    
     var selectedCategory: Category?{
         didSet{
             loadItems()
@@ -18,9 +19,29 @@ class TodoListViewController: SwipeTableViewController{
         searchBar.delegate = self
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         tableView.separatorStyle = .none
+
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        
+        guard let colour = selectedCategory?.colour else {fatalError()}
+        title = selectedCategory?.name
+        updateNavbar(withHexColour: colour)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        updateNavbar(withHexColour: "1D9BF6")
+    }
     //MARK: - Tableview Datasource Methods
+    func updateNavbar(withHexColour colourHex: String){
+        guard let navgator = navigationController?.navigationBar else {fatalError("Navigation Controller does not exist!")}
+        guard let navBar = UIColor(hexString: colourHex) else {fatalError()}
+        
+        navgator.tintColor = ContrastColorOf(navBar, returnFlat: true)
+        navgator.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(navBar, returnFlat: true)]
+        navgator.barTintColor = navBar
+        searchBar.barTintColor = navBar
+    }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return toDoItems?.count ?? 1
